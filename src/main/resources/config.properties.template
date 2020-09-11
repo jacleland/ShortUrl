@@ -1,0 +1,16 @@
+; Default configuration properties file - To configure the server, copy this file
+; to /src/main/resources/config.properties and edit the settings below for
+; your database server installation.
+;
+; This application was written to use MariaDB 10. The parameters below are used
+; by the application to build a connect string with the following format:
+;
+; jdbc:mariadb://{dbHost}:{dbPort}/{dbName}?user={dbUser}&password={dbPassword}
+;
+
+
+dbHost = localhost
+dbPort = 3306
+dbName = ShortUrl
+dbUser = ShortUrl
+dbPassword = ShortUrl

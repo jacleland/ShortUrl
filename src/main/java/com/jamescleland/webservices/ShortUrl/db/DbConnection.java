@@ -1,16 +1,35 @@
 /**
- * 
+ *  This file belongs to the ShortUrl project, the latest version of which
+ *  can be found at https://github.com/jacleland/ShortUrl.
+ *
+ *  Copyright (c) 2020, James A. Cleland <jcleland at jamescleland dot com>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.jamescleland.webservices.ShortUrl.db;
 
-import java.sql.Connection;
 //Java imports
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * 
+ * Simple connection class implementing DbInterface. This class should not be
+ * used for a production deployment - The connection pool implementation from 
+ * DbConnectionPool is preferred. 
+ * @author jcleland (James A. Cleland)
  */
 public class DbConnection implements DbInterface {
   //Driver manager instance, created and initialized during init()
@@ -20,7 +39,7 @@ public class DbConnection implements DbInterface {
   //Properties manager for database configuration
   protected Properties          properties;
   
-  //The hostname that will be used in the connect string
+  //The host name that will be used in the connect string
   private String dbHost;
   
   //The port to use when connecting to the database
@@ -58,6 +77,14 @@ public class DbConnection implements DbInterface {
     dbName = properties.getProperty("dbName", "ShortUrl");
     dbUser = properties.getProperty("dbUser", null);
     dbPassword = properties.getProperty("dbPassword", null);
+    
+    try {
+      //Force driver load (Not supposed to need this anymore?)
+      Class.forName("org.mariadb.jdbc.Driver");
+    } catch (ClassNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -65,7 +92,8 @@ public class DbConnection implements DbInterface {
    */
   @Override
   public Connection getConnection() throws SQLException {
-    Connection conn = DriverManager.getConnection(getDbUrl());
+    Connection conn = 
+        DriverManager.getConnection(getDbUrl(), dbUser, dbPassword);
     return conn;
   }
 
@@ -103,12 +131,12 @@ public class DbConnection implements DbInterface {
   private String getDbUrl() {
     //Build connection URL for MariaDB JDBC connection
     String url = "jdbc:mariadb://"+dbHost+":"+dbPort+"/"+dbName;
-    if(dbUser != null) {
-      url += "?user="+dbUser;
-      if(dbPassword != null) {
-        url += "&password="+dbPassword;
-      }
-    }
+//    if(dbUser != null) {
+//      url += "?user="+dbUser;
+//      if(dbPassword != null) {
+//        url += "&password="+dbPassword;
+//      }
+//    }
     return url;
   }
 }

@@ -1,5 +1,21 @@
 /**
- * 
+ *  This file belongs to the ShortUrl project, the latest version of which
+ *  can be found at https://github.com/jacleland/ShortUrl.
+ *
+ *  Copyright (c) 2020, James A. Cleland <jcleland at jamescleland dot com>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.jamescleland.webservices.ShortUrl.json;
 
@@ -28,8 +44,9 @@ public class JsonUtil {
   private ObjectWriter              prettyWriter    = mapper.writerWithDefaultPrettyPrinter();
 
   /**
-   * 
-   * @return
+   * Returns the singleton instance of the JSON utility class, allocating a new
+   * instance if necessary.
+   * @return The singleton instance of the JsonUtil class
    */
   public static JsonUtil getInstance() {
     if(JsonUtil.instance == null) 
@@ -42,6 +59,7 @@ public class JsonUtil {
    * Private default constructor for singleton class
    */
   private JsonUtil() {
+    //Initialize and configure the object mapper
     mapper.configure(
         DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     mapper.setDefaultPropertyInclusion(
@@ -59,20 +77,20 @@ public class JsonUtil {
   }
   
   /**
-   * 
-   * @param o
-   * @return
-   * @throws JsonProcessingException
+   * Serializes a java object to a JSON string
+   * @param o The object to serialize
+   * @return A string containing the JSON representation of the specified object
+   * @throws JsonProcessingException On error serializing the java object to JSON string
    */
   public String toJson(Object o) throws JsonProcessingException {
     return mapper.writeValueAsString(o);
   }
   
   /**
-   * 
-   * @param o
-   * @return
-   * @throws JsonProcessingException
+   * Serializes a java object to a JSON string that is formatted/indented
+   * @param o The object to serialize
+   * @return A string containing the formatted JSON representation of the specified object
+   * @throws JsonProcessingException On error serializing the java object to JSON string
    */
   public String toPrettyJson(Object o) throws JsonProcessingException {
     return prettyWriter.writeValueAsString(o);
