@@ -133,7 +133,7 @@ input.textbox {
 input.result {
 	color: black;
 	width: 30vw;
-	font-size: 1.1em;
+	font-size: 1.3em;
 	font-stretch: condensed;
 	text-align: center;
 	border: 1px solid #EEF;
@@ -162,21 +162,22 @@ input.result {
 
 	.button {
 		margin-top: 10px;
-		padding: 8px 15px 8px 15px;
+		padding: 10px 15px 10px 15px;
 		border-radius: 11px; 
 	}
 	
 	input.textbox {
+		color: #1A5775;
 		width: 92vw;
 		height: 24px;
 		font-size: 1.1em;
 	}
 
 	input.result {
-		color: #AAAAFF;
+		color: black;
 		width: 92vw;
-		height: 24px;
-		font-size: 1.1em;
+		height: 28px;
+		font-size: 1.3em;
 	}
 }
 
