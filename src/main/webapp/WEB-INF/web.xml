@@ -5,13 +5,47 @@
 	id="WebApp_ID" version="3.0">
 	<display-name>ShortUrl</display-name>
 	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-		<welcome-file>index.htm</welcome-file>
-		<welcome-file>index.jsp</welcome-file>
-		<welcome-file>default.html</welcome-file>
-		<welcome-file>default.htm</welcome-file>
-		<welcome-file>default.jsp</welcome-file>
+		<welcome-file>/static/index.html</welcome-file>
 	</welcome-file-list>
+	
+	<!-- Static content filter for serving HTML pages from the project -->
+	<filter>
+		<filter-name>Static Content</filter-name>
+		<filter-class>org.glassfish.jersey.servlet.ServletContainer</filter-class>
+		<init-param>
+	    <param-name>jersey.config.servlet.filter.staticContentRegex</param-name>
+	    <param-value></param-value>
+		</init-param>
+    <init-param>
+        <param-name>jersey.config.servlet.filter.forwardOn404</param-name>
+        <param-value>true</param-value>
+    </init-param>
+	</filter>
+	
+	<filter>
+		<filter-name>ShortURL Service</filter-name>
+		<filter-class>org.glassfish.jersey.servlet.ServletContainer</filter-class>
+		<init-param>
+			<param-name>jersey.config.server.provider.packages</param-name>
+			<param-value>com.jamescleland.webservices.ShortUrl.servlet</param-value>
+		</init-param>
+    <init-param>
+        <param-name>jersey.config.servlet.filter.forwardOn404</param-name>
+        <param-value>true</param-value>
+    </init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>ShortURL Service</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>Static Content</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!-- Web service servlet configuration 
 	<servlet>
 		<servlet-name>ShortUrl Web Application</servlet-name>
 		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
@@ -23,5 +57,5 @@
 	<servlet-mapping>
 		<servlet-name>ShortUrl Web Application</servlet-name>
 		<url-pattern>/*</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping> -->
 </web-app>

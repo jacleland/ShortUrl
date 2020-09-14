@@ -19,7 +19,7 @@
  */
 package com.jamescleland.webservices.ShortUrl.models;
 
-//Java imports
+//Jersey imports
 import javax.validation.constraints.NotNull;
 //Jackson imports
 import com.fasterxml.jackson.annotation.JsonIgnore;

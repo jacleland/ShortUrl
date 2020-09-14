@@ -1,13 +1,16 @@
-; Default configuration properties file - To configure the server, copy this file
-; to /src/main/resources/config.properties and edit the settings below for
-; your database server installation.
-;
-; This application was written to use MariaDB 10. The parameters below are used
-; by the application to build a connect string with the following format:
-;
-; jdbc:mariadb://{dbHost}:{dbPort}/{dbName}?user={dbUser}&password={dbPassword}
-;
+# Default configuration properties file - To configure the server, copy this file
+# to /src/main/resources/config.properties and edit the settings below for
+# your database server installation.
+#
+# This application was written to use MariaDB 10. The parameters below are used
+# by the application to build a connect string with the following format:
+#
+# jdbc:mariadb://{dbHost}:{dbPort}/{dbName}?user={dbUser}&password={dbPassword}
+#
 
+# Specify the connection source implementation class to use. Implementations
+# included in this distribution include .DbConnection and .ConnectionPool
+dbProviderImpl = com.jamescleland.webservices.ShortUrl.db.ConnectionPool
 
 dbHost = localhost
 dbPort = 3306

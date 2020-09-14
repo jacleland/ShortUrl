@@ -21,6 +21,7 @@ package com.jamescleland.webservices.ShortUrl.models;
 
 //Java SQL imports
 import java.sql.Timestamp;
+//Jersey imports
 import javax.validation.constraints.NotNull;
 //Jackson imports
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -30,12 +31,19 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * ShortUrl response object for web service token request
  */
 public class UrlResponse extends ResponseBase {
+  /** Unique ID primary key from map table */
   private Integer       id;
+  
+  /** The time at which this record was created */
   private Timestamp     createTime;
+  
+  /** The token generated for this short URL */
   private String        token;
+  
+  /** The URL that this token is mapped to */
   private String        url;
   
-  @JsonIgnore
+  /** The short URL value as derived from the servlet request and context path */
   private String        shortUrl;
 
   /**

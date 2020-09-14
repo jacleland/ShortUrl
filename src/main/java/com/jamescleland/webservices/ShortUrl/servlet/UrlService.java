@@ -21,8 +21,9 @@ package com.jamescleland.webservices.ShortUrl.servlet;
 
 //Java imports
 import java.net.URI;
-import javax.servlet.ServletContext;
 //Jersey imports
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -37,55 +38,31 @@ import com.jamescleland.webservices.ShortUrl.Configuration;
 import com.jamescleland.webservices.ShortUrl.db.DataUtil;
 import com.jamescleland.webservices.ShortUrl.models.CreateUrlRequest;
 import com.jamescleland.webservices.ShortUrl.models.UrlResponse;
-
 /**
  * Short URL web service servlet
  * @author jcleland (James A. Cleland)
  */
 @Path("/") 
 public class UrlService {
-  ///Class final definitions
-  public static final String        PARAM_PREFIX    = "SSU-";
-  
-  ///TODO: Temporary URL to be removed after testing
-  public static final String        TEMP_URL        = "http://www.google.com";
-  
   //The DbConnection instance to be used by this servlet instance
-  private static DataUtil           db;
+  private static DataUtil           shortUrlDb;
   
   ///Servlet context for configuration parameters, etc
   @Context ServletContext           context;
   
   static {
     //Initialize the DB connection instance with properties from the configuration
-    db = new DataUtil();
-    db.init(Configuration.properties);
-  }
-  
-  /**
-   * Returns HTML that will redirect the browser to the URL saved with the 
-   * token specified in the path parameter. If the token specified is not
-   * found, an error page will be returned.
-   * @param token Parameterized token value as SU-{token}
-   * @return HTML content that will forward to the page keyed by the specified token
-   */
-  @GET
-  @Path("/{token_param}")
-  @Produces(MediaType.TEXT_HTML)
-  public Response redirectForToken(@PathParam("token_param") String token_param) {
+    shortUrlDb = new DataUtil();
+    
     try {
-      //Parse token from path parameter to remove well-known prefix
-      @SuppressWarnings("unused")
-      String token = parseToken(token_param);
-      
-      //Retrieve URI for specified token
-      URI target = new URI(TEMP_URL);
-      
-      //Build redirect response and return
-      return Response.temporaryRedirect(target).build();
+      //Initialize the database connection provider
+      shortUrlDb.init(Configuration.properties);
     }
     catch(Exception e) {
-      return Response.status(404).build();
+      //Log DB initialization errors here, application may not function properly
+      System.out.println("CRITICAL ERROR during initialization - "
+          + "Application may not function properly");
+      e.printStackTrace();
     }
   }
   
@@ -97,13 +74,16 @@ public class UrlService {
   @Path("/create")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response newTokenForUrl(CreateUrlRequest request) {
+  public Response newTokenForUrl(@Context HttpServletRequest servletRequest,
+      CreateUrlRequest request) 
+  {
     //Local data
     UrlResponse response = new UrlResponse();
     
     try {
       //Create short URL for request
-      response = db.createShortUrl(request);
+      response = shortUrlDb.create(request);
+      response.setShortUrl(createShortUrl(servletRequest, response));
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -124,25 +104,80 @@ public class UrlService {
   @GET
   @Path("/read/{token}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response read(@PathParam("token") String token) {
-    //Get short URL record for token
-    UrlResponse response = db.readShortUrl(token);
+  public Response read(@Context HttpServletRequest request,
+      @PathParam("token") String token) 
+  {
+    //Get short URL record for token and build the short URL w/prefix
+    UrlResponse response = shortUrlDb.read(token);
+    response.setShortUrl(createShortUrl(request, response));
     
     //Return JSON string
     return Response.status(response.getHttpStatus()).entity(response).build();
   }
   
   /**
-   * Parses token value from the specified parameter.
-   * @param param
-   * @return
-   * @throws Exception on invalid token path parameter format/prefix
+   * Returns HTML that will redirect the browser to the URL saved with the 
+   * token specified in the path parameter. If the token specified is not
+   * found, an error page will be returned.
+   * @param token Parameterized token value as SU-{token}
+   * @return HTML content that will forward to the page keyed by the specified token
    */
-  private String parseToken(String param) throws Exception {
-    int index = param.indexOf(PARAM_PREFIX);
-    if(index != 0) {
-      throw new Exception("Invalid token path parameter");
+  @GET
+  @Path("/{token}")
+  @Produces(MediaType.TEXT_HTML)
+  public Response redirectForToken(@Context HttpServletRequest request,
+      @PathParam("token") String token) 
+  {
+    System.out.println(request.getRequestURL());
+    try {
+      //Get short URL record for token and build the short URL w/prefix
+      UrlResponse response = shortUrlDb.read(token);
+      
+      //Build redirect response and return
+      URI target = new URI(response.getUrl());
+      System.out.println(target.toString());
+      return Response.temporaryRedirect(target).build();
     }
-    return param.substring(index+PARAM_PREFIX.length());
+    catch(Exception e) {
+      return Response.status(404).build();
+    }
+  }
+  
+  /**
+   * Builds the shortened URL for the specified UrlResponse object that has 
+   * bee populated with a valid token.
+   * @param response A UrlResponse instance that has been successfully populated 
+   * with a valid token
+   * @return A String containing the short URL for the provided response
+   * object's token
+   */
+  private String createShortUrl(HttpServletRequest request, 
+      UrlResponse response) 
+  {
+    //Declare local
+    String shortUrl = null;
+    
+    //Parse full request URL and base URI from HTTP request
+    String requestUrl = request.getRequestURL().toString();
+    String contextPath = request.getContextPath().toString();
+    
+    //Context path info should be a substring of the request URL. If index is 
+    // valid, take the context path base substring.
+    int index = requestUrl.indexOf(contextPath);
+    if(index <= 0) {
+      //Shouldn't be here, leave short URL empty and append an error. The
+      // JS at the page should try to build the URL from the token in the 
+      // reply and the context path that was used to make this request.
+      response.appendError("Unable to extract context base URL from servlet request");
+    }
+    else {
+      //Index looks valid so we take the request URL + context path substring
+      shortUrl = requestUrl.substring(0, index + contextPath.length());
+    }
+
+    
+    //Build short URL from context path and token
+    shortUrl += "/" +response.getToken();
+    return shortUrl;
   }
 }

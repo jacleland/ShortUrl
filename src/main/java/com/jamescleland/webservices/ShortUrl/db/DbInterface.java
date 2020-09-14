@@ -42,7 +42,7 @@ public interface DbInterface {
    * @throws Exception on invalid property values or missing required properties
    * or error creating cached or pooled resources.
    */
-  public void init(Properties props) throws Exception;
+  public void init(Properties props) throws SQLException;
 
   /**
    * Retrieves a connection from the database layer according to the implementation
@@ -52,6 +52,10 @@ public interface DbInterface {
    * @throws SQLException on error creating connection or retrieving pool resource
    */
   public Connection getConnection() throws SQLException;
+  
+//  public UrlResponse create(CreateUrlRequest request);
+//  
+//  public UrlResponse read(String token);
   
   /**
    * Releases and possibly destroys a connection previously retrieved from the

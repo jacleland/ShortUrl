@@ -25,8 +25,8 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-//Jersey imports
 import javax.ws.rs.ApplicationPath;
+//Jersey imports
 import javax.ws.rs.core.Application;
 //Project imports
 import com.jamescleland.webservices.ShortUrl.servlet.UrlService;

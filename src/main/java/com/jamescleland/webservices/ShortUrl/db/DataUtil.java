@@ -19,14 +19,16 @@
  */
 package com.jamescleland.webservices.ShortUrl.db;
 
+import java.lang.reflect.Constructor;
 //Java imports
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
-//Java imports
+//Apache imports
 import org.apache.commons.lang3.RandomStringUtils;
+//Local imports
 import com.jamescleland.webservices.ShortUrl.models.CreateUrlRequest;
 import com.jamescleland.webservices.ShortUrl.models.UrlResponse;
 
@@ -34,14 +36,41 @@ import com.jamescleland.webservices.ShortUrl.models.UrlResponse;
  * Data utility subclass extending the connection policy-specific implementation
  * for accessing the application backing store.
  */
-public class DataUtil extends DbConnection {
+public class DataUtil {
+  //The name of the database interface implementation provider
+  private String dbImplProvider = null;
+  
+  //The DB interface implementation provider
+  //TODO: The provider should be properties- or context-driven, rather than 
+  // hard-coded here as multiple providers are available (pool,
+  // basic connection, etc). IE: DatabaseProvider=com.jamescleland...DataUtil
+  // created at runtime using Class.forName()
+  private DbInterface dbImpl = null;
+  
   /**
    * Initialize underlying database connection
    */
-  @Override
-  public void init(Properties props) {
-    //Init base class first
-    super.init(props);
+  public void init(Properties props) throws SQLException {
+    //Get the data interface implementation provider from configuration props
+    dbImplProvider = props.getProperty("dbProviderImpl", 
+        "com.jamescleland.webservices.ShortUrl.db.ConnectionPool");
+
+    try {
+      //Create instance of database interface provider implementation as
+      // specified in the configuration properties (or using default implementation
+      // from ConnectionPool)
+      Class<?> clazz = Class.forName(dbImplProvider);
+      Constructor<?> constructor = clazz.getConstructor();
+      dbImpl = (DbInterface) constructor.newInstance();
+    } 
+    catch(Exception e) {
+      //Create implementation from class name using reflection failed
+      throw new SQLException("Unable to create DbInterace implementation: "
+          + e.getMessage());
+    } 
+    
+    //Initialize the implementation instance
+    dbImpl.init(props);
   }
   
   /**
@@ -50,7 +79,7 @@ public class DataUtil extends DbConnection {
    * @param reg The registration data containing the URL to map
    * @return A MappedUrl instance that contains the short URL mapping data for the full URL
    */
-  public UrlResponse createShortUrl(CreateUrlRequest reg) {
+  public UrlResponse create(CreateUrlRequest reg) {
     UrlResponse response = new UrlResponse();
     Connection conn = null;
     PreparedStatement stmt = null;
@@ -60,7 +89,7 @@ public class DataUtil extends DbConnection {
       String token = RandomStringUtils.randomAlphanumeric(12);
       
       //Insert the token, URL into the map table
-      conn = getConnection();
+      conn = dbImpl.getConnection();
       
       //Create the prepared statement and execute
       stmt = conn.prepareStatement("INSERT INTO ShortUrl.ShortMap(token, url)"
@@ -94,34 +123,50 @@ public class DataUtil extends DbConnection {
    * @param token The token that represents the shortened URL record data
    * @return A UrlResponse object containing row data or error info if not found
    */
-  public UrlResponse readShortUrl(String token) {
+  public UrlResponse read(String token) {
     //Declare locals
     UrlResponse response = new UrlResponse();
     Connection conn = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;
     
+    //Set token in the response object
+    response.setToken(token);
+
     try {
       //TODO: Validate token - [a-zA-Z0-9]{min,max} might be enough here
       //Get connection
-      conn = getConnection();
+      conn = dbImpl.getConnection();
       
       //Create a query statement to retrieve a row by token
       stmt = conn.prepareStatement("SELECT id, createTime, token, url"
           + " FROM ShortUrl.ShortMap WHERE token='" + token + "';");
       rs = stmt.executeQuery();
-      while(rs.next()) {
+      if(rs.next()) {
+        //Read first returned row
+        //TODO: Slight chance of duplicate tokens, maybe we should add ORDER BY
+        // on timestamp so that we return the first created? Eventually, there
+        // should be a unique constraint on the token column and retry logic in 
+        // the app OR generate a more unique token. Likely the former in the 
+        // interest of keeping the token short and tolerating 5% chance of 
+        // duplicates at, say 100,000 records.
         response.setId(rs.getInt("id"));
         response.setCreateTime(rs.getTimestamp("createTime"));
-        response.setToken(rs.getString("token"));
         response.setUrl(rs.getString("url"));
+      }
+      else {
+        //No rows returned for this query, result is invalid and 404 (not found)
+        response.setValid(false);
+        response.setHttpStatus(404);
+        response.appendError("The URL for token '"+token+"' was not found");
       }
     } 
     catch(SQLException sqle) {
       //Print stack trace to log
       sqle.printStackTrace();
       
-      //Append exception error message to response and set code/invalid
+      //Append exception error message to response and set code/invalid - This
+      // is a server error indicating unable to connect or bad DB/user/etc
       response.appendError(sqle.getMessage());
       response.setHttpStatus(507);
       response.setValid(false);
@@ -139,9 +184,9 @@ public class DataUtil extends DbConnection {
    * Cleans up the connection base class and any resources that we've allocated
    * in our subclass.
    */
-  @Override
   public void destroy() {
-    super.destroy();
+    if(dbImpl != null)
+      dbImpl.destroy();
   }
 
   /**
@@ -159,7 +204,7 @@ public class DataUtil extends DbConnection {
     }
     
     if(conn != null) {
-      try { releaseConnection(conn); } 
+      try { dbImpl.releaseConnection(conn); } 
       catch(Throwable t) {}
     }
     

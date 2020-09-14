@@ -66,7 +66,7 @@ public class DbConnection implements DbInterface {
    * password are assumed.
    */
   @Override
-  public void init(Properties props) {
+  public void init(Properties props) throws SQLException {
     //Keep reference to properties instance
     this.properties = props;
 
@@ -81,10 +81,40 @@ public class DbConnection implements DbInterface {
     try {
       //Force driver load (Not supposed to need this anymore?)
       Class.forName("org.mariadb.jdbc.Driver");
-    } catch (ClassNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } 
+    catch (ClassNotFoundException e) {
+      //Package this as a SQL exception and re-throw
+      throw new SQLException("Exception loading driver during Class.forName(): " 
+          + e.getMessage());
     }
+  }
+
+  /**
+   * @return the dbUser
+   */
+  public String getDbUser() {
+    return dbUser;
+  }
+
+  /**
+   * @param dbUser the dbUser to set
+   */
+  public void setDbUser(String dbUser) {
+    this.dbUser = dbUser;
+  }
+
+  /**
+   * @return the dbPassword
+   */
+  public String getDbPassword() {
+    return dbPassword;
+  }
+
+  /**
+   * @param dbPassword the dbPassword to set
+   */
+  public void setDbPassword(String dbPassword) {
+    this.dbPassword = dbPassword;
   }
 
   /**
@@ -128,7 +158,7 @@ public class DbConnection implements DbInterface {
    * empty password.
    * @return Connect string (URL) for MariaDB JDBC driver
    */
-  private String getDbUrl() {
+  protected String getDbUrl() {
     //Build connection URL for MariaDB JDBC connection
     String url = "jdbc:mariadb://"+dbHost+":"+dbPort+"/"+dbName;
 //    if(dbUser != null) {

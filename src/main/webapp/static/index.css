@@ -1,0 +1,203 @@
+/**
+ *  This file belongs to the ShortUrl project, the latest version of which
+ *  can be found at https://github.com/jacleland/ShortUrl.
+ *
+ *  Copyright (c) 2020, James A. Cleland <jcleland at jamescleland dot com>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+body {
+	margin: 0;
+	padding: 0;
+} 
+.title {
+	color: #1A5775;
+	width: 100%;
+	height: 130px;
+	font-family: Verdana, sans-serif;
+	font-size: 2.1em; 
+	font-weight: bold;
+	text-align: center;
+	vertical-align: middle;
+	text-shadow: 3px 3px 18px #8A97B5;
+}
+
+.pagebody {
+	background-color: white;
+	color: black;
+	font-size: 1.3em;
+	text-align: center;
+	width: 99.8vw;
+	height: auto;
+} 
+
+table.layout {
+	width: 99.8vw;
+	text-align: center;
+	vertical-align: middle;
+	margin: 0;
+	padding: 0;
+}
+
+table.layout > tbody > tr {
+	text-align: center;
+	margin: 0;
+	padding: 0 0 10px 0;
+}
+
+table.layout tbody > tr > td {
+	text-align: center;
+	margin: 0;
+	padding: 0 0 10px 0;
+}
+
+.smalltext {
+	font-size: 0.75em;
+}
+
+.italics {
+	font-style: italic;	
+}
+
+.note {
+	color: #4A87A0;
+}
+
+.button {
+	background-color: #4A87A5;	
+	color: white;
+	font-size: 1.2em;
+	border: 1px solid #579;
+	border-radius: 8px;
+	padding: 5px 7px 5px 7px;
+	vertical-align: middle;
+	display: inline-block;
+	cursor: pointer;
+	white-space: normal;
+}
+
+.button:hover {
+	background-color: #5A97b5;
+	color: white;
+}
+
+.button:disabled {
+	background-color: #8Ac7e5;
+	color: #6b7b94;
+	border: 1px solid #68A;
+}
+
+.textwrap {
+	font-size: 0.8em;
+	padding: 8px 3px 8px 3px;
+}
+
+input:focus {
+	background-color: white;
+	color: black;
+	width: 30vw;
+	height: 20px;
+	font-size: 1.25em;
+	vertical-align: middle;
+	border-style: none;
+	margin: 0px 2px 0px 4px;
+	padding: 6px 0px 6px 0px;
+	box-shadow: 0px 0px 3px 6px rgba(200, 230, 255, 0.3);
+}
+
+input.textbox {
+	background-color: white;
+	color: #1A5775;
+	width: 30vw;
+	height: 20px;
+	font-size: 1.2em;
+	font-stretch: condensed;
+	vertical-align: middle;
+	border: 1px solid #bbcbd4;
+	margin: 0px 2px 0px 4px;
+	padding: 6px 0px 6px 0px;
+}
+
+input.result {
+	color: black;
+	width: 30vw;
+	font-size: 1.1em;
+	font-stretch: condensed;
+	text-align: center;
+	border: 1px solid #EEF;
+	padding: 5px 2px 5px 2px;
+}
+
+/* Make some controls a bit larger on mobile platforms */
+@media screen and (max-width: 800px) {
+	.title { 
+		color: #1A5775;
+		width: 100%;
+		height: 45px;
+		font-family: Verdana, sans-serif;
+		font-size: 1.7em;
+		font-weight: 600;
+		text-align: center;
+		text-shadow: none;
+		padding: none;
+		margin: none;
+		border: -1px solid red; 
+	}
+	
+	.plusheight {
+		font-size: 1.1em;
+	}	
+
+	.button {
+		margin-top: 10px;
+		padding: 8px 15px 8px 15px;
+		border-radius: 11px; 
+	}
+	
+	input.textbox {
+		width: 92vw;
+		height: 24px;
+		font-size: 1.1em;
+	}
+
+	input.result {
+		color: #AAAAFF;
+		width: 92vw;
+		height: 24px;
+		font-size: 1.1em;
+	}
+}
+
+/* Hide some elements when screen height is smaller, such as when a 
+   phone keyboard is displayed */   
+@media screen and (max-height: 600px) {
+	#copyrightBox {
+		display: none;
+	}
+}
+
+/* Copyright information at page bottom */
+
+#copyrightBox {
+	position: absolute;
+	bottom: 5px;
+	left: 0px;
+	width: 100vw;
+}
+
+.copyrightText {
+	font-size: 0.60em;
+	text-align: center;
+}
