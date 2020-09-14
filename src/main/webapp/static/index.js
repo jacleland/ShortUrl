@@ -21,16 +21,18 @@
 /**
  * Application setup on load complete
  */
-window.onload=function() {
+document.addEventListener('DOMContentLoaded', (event) => {
+	event;
 	//Get page location URL for web services
 	const pageUrl = window.location.href;
 	
-	//Hide the short URL text output initially
+	//Hide the short URL text output and shorten button is disabled
 	showShortUrl(false);
+	enableGenerate(false);
 	
 	//Get controls
-	var urlInput = document.getElementById("longUrl");
-	var genButton = document.getElementById("generateButton");
+	var urlInput = document.getElementById("LongUrl");
+	var genButton = document.getElementById("GenerateButton");
 	
 	//Add event listener for URL field on paste
 	urlInput.addEventListener('paste', (event) => {
@@ -61,7 +63,7 @@ window.onload=function() {
 		var wsUrl = pageUrl.substr(0, end) + '/create';
 
 		//Get long URL from text input
-		var longUrl = document.getElementById("longUrl").value;
+		var longUrl = document.getElementById("LongUrl").value;
 		
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.open('PUT', wsUrl);
@@ -73,7 +75,7 @@ window.onload=function() {
 		
 		xmlHttp.send('{"url": "'+longUrl+'"}');
 	});
-}
+});
 
 /**
  * Handle JSON response to /create 
@@ -81,8 +83,9 @@ window.onload=function() {
 function handleResponse(response) {
 	JSON.parse(response, (key, value) => {
 		if(key == 'shortUrl')
-			document.getElementById("shortUrl").value = value;
+			document.getElementById("ShortUrl").value = value;
 			showShortUrl(true);
+			enableGenerate(false);
 	});	
 }
 
@@ -99,7 +102,7 @@ function validateUrl(url) {
  * URL value is valid.
  */
 function enableGenerate(val) {
-	var container = document.getElementById("generateButton");
+	var container = document.getElementById("GenerateButton");
 	container.disabled = !val;
 }
 
@@ -107,13 +110,26 @@ function enableGenerate(val) {
  * Show or hide the short URL results container
  */
 function showShortUrl(val) {
-	var container = document.getElementById("shortUrlContainer");
+	var container = document.getElementById("ShortUrlContainer");
 	container.style.display = (val) ? "block" : "none";
 }
 
+/**
+ * Deletes the contents of the short URL text box when the long URL is
+ * modified.
+ */
+function clearShortUrl() {
+	var container = document.getElementById("ShortUrlContainer");
+	container.value = "";	
+}
+
+/**
+ * Selects the content within the short URL text box and copies it to the 
+ * system clipboard.
+ */
 function copyToClipboard(id) {
 	id;
-	var textControl = document.getElementById("shortUrl");
+	var textControl = document.getElementById("ShortUrl");
 	//var shortUrl = textControl.value;
 	
 	//Select the text control contents

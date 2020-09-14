@@ -36,22 +36,23 @@
 			<tr>
 				<td></td>
 				<td>
-					<div id="generateUrlContainer">
+					<div id="GenerateUrlContainer">
 						<span class="smalltext italics note">
 							Enter a URL and click "Shorten"...
 						</span>
 						<br>
-						<input id="longUrl" class="textbox plusheight" type="text"></input>
-						<button id="generateButton" class="button plusheight" type="button" disabled>
+						<input id="LongUrl" class="textbox plusheight" type="text"></input>
+						<button name="GenerateButton" id="GenerateButton" 
+							class="button plusheight" type="button" disabled>
 							Shorten
 						</button>
-						<div id="shortUrlContainer">
+						<div id="ShortUrlContainer">
 							<br>
 							<span class="smalltext italics note">
 								Here is your shortened link:
 							</span>
 							<br>
-							<input id="shortUrl" class="textbox plusheight result" type="text" readonly />
+							<input id="ShortUrl" class="textbox plusheight result" type="text" readonly />
 							<button class="button textwrap plusheight" onclick="copyToClipboard(this.id);">
 								To Clipboard
 							</button>

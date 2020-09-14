@@ -89,14 +89,14 @@ table.layout tbody > tr > td {
 }
 
 .button:hover {
-	background-color: #5A97b5;
+	background-color: #3A7795;
 	color: white;
 }
 
 .button:disabled {
-	background-color: #8Ac7e5;
-	color: #6b7b94;
-	border: 1px solid #68A;
+	background-color: #D6E0E8;
+	color: #9AB; 
+	border: 1px solid #9AB;
 }
 
 .textwrap {
