@@ -41,11 +41,10 @@ public class DataUtil {
   private String dbImplProvider = null;
   
   //The DB interface implementation provider
-  //TODO: The provider should be properties- or context-driven, rather than 
-  // hard-coded here as multiple providers are available (pool,
-  // basic connection, etc). IE: DatabaseProvider=com.jamescleland...DataUtil
-  // created at runtime using Class.forName()
   private DbInterface dbImpl = null;
+  
+  //The length of the token to generate
+  private int tokenLength = 5;
   
   /**
    * Initialize underlying database connection
@@ -71,6 +70,10 @@ public class DataUtil {
     
     //Initialize the implementation instance
     dbImpl.init(props);
+    
+    //Get token length from properties
+    tokenLength = Integer.valueOf(props.getProperty("tokenLength", "8"));
+    if(tokenLength < 5) tokenLength = 5;
   }
   
   /**
@@ -79,26 +82,46 @@ public class DataUtil {
    * @param reg The registration data containing the URL to map
    * @return A MappedUrl instance that contains the short URL mapping data for the full URL
    */
+  @SuppressWarnings("resource")
   public UrlResponse create(CreateUrlRequest reg) {
     UrlResponse response = new UrlResponse();
     Connection conn = null;
     PreparedStatement stmt = null;
+    int retry = 3;
     
     try {
-      //Generate a token for the URL
-      String token = RandomStringUtils.randomAlphanumeric(12);
-      
-      //Insert the token, URL into the map table
+      //Get a connection from provider and create an insert statement
       conn = dbImpl.getConnection();
-      
-      //Create the prepared statement and execute
-      stmt = conn.prepareStatement("INSERT INTO ShortUrl.ShortMap(token, url)"
-          + " VALUES('" + token + "', '" + reg.getUrl() + "');");
-      stmt.execute();
-      
-      //Set the response data token and URL, the insert would throw on error
-      response.setToken(token);
-      response.setUrl(reg.getUrl());
+      stmt = conn.prepareStatement(
+          "INSERT INTO ShortUrl.ShortMap(token, url) VALUES(?, ?);");
+
+      //Completed flag for successful statement execute to fall out of while
+      boolean done = false;
+      do {
+        try {
+          //Generate a token for the URL
+          String token = RandomStringUtils.randomAlphanumeric(tokenLength);
+          
+          //Set parameters for prepared statement and execute
+          stmt.setString(1, token);
+          stmt.setString(2, reg.getUrl());
+          stmt.execute(); //Throw on unique constraint
+          
+          //Set the response data token and URL, the insert would throw on error
+          response.setToken(token);
+          response.setUrl(reg.getUrl());
+          done = true; //Here on no errors during INSERT
+        }
+        catch(SQLException sqle) {
+          //Throw out of while, outer try/catch handles response and cleanup
+          if(retry <= 0) throw sqle; 
+          
+          //Decrement retry counter
+          retry--;
+        }
+        
+        //Fall out on no errors, retry<1 throws past on exception
+      } while(!done); 
     }
     catch(SQLException sqle) {
       //Print the stack trace to log

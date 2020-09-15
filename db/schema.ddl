@@ -36,7 +36,8 @@ ALTER TABLE ShortMap ADD INDEX (id);
 -- Timestamp index for query on duplicate keys/order by most recent
 ALTER TABLE ShortMap ADD INDEX (createTime);
 
--- Index for short URL token
-ALTER TABLE ShortMap ADD INDEX (token);
+-- Index and unique constraint for short URL token
+ALTER TABLE ShortMap ADD UNIQUE INDEX (token);
+ALTER TABLE ShortMap ADD CONSTRAINT uc_token UNIQUE (token);
 
 
