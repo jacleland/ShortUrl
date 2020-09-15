@@ -146,7 +146,7 @@ input.result {
 		font-weight: 600;
 		text-shadow: none;
 	}
-	
+}
 
 /* Make some controls a bit larger on mobile platforms */
 @media screen and (max-width: 600px) {
