@@ -1,0 +1,5 @@
+root = true
+
+[*.{java,ddl,sql,js,html,css,xml}]
+indent_style = tab
+indent_size = 2
