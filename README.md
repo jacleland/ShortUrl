@@ -1,23 +1,23 @@
 ShortUrl
 ========
-The [ShortUrl](https://github.com/jacleland/ShortUrl) project is a web service implementation of a redirecting short URL web application, developed by [James A. Cleland](mailto:jcleland@jamescleland.com). The web service is implemented in [Java](https://openjdk.java.net/) and utilizes the [Jersey](https://eclipse-ee4j.github.io/jersey/) implementation of the [JAX-RX](https://github.com/jax-rs) specification, as well as [Jackson](https://github.com/FasterXML/jackson) for parsing [JSON](https://www.json.org/json-en.html). A light-weight HTML5/CSS3/JavaScript font-end is provided as part of the project, although the web service implementation is designed to be easily integrated into other applications as a plugin.
+The [ShortUrl](https://github.com/jacleland/ShortUrl) project is a web service implementation of a redirecting short URL web application, developed by [James A. Cleland](mailto:jcleland@jamescleland.com). The web service is implemented in [Java](https://openjdk.java.net/) and utilizes the [Jersey](https://eclipse-ee4j.github.io/jersey/) implementation of the [JAX-RX](https://github.com/jax-rs) specification, as well as [Jackson](https://github.com/FasterXML/jackson) for parsing [JSON](https://www.json.org/json-en.html). A light-weight HTML5/CSS3/JavaScript front-end is provided as part of the project, although the web service implementation is designed to be easily integrated into other applications as a plugin.
 
 
 ## Prerequisites
-The application is distributed as Java source code and includes a build file for use with the [Apache Maven](https://maven.apache.org/) software management system. Building ShortUrl requires that a JDK be installed and should be JDK 11-compliant. The remaining dependencies are included in the Maven pom.xml build file, which is located in the project root directory, and will be resolved/downloaded by Maven during the build process. A summary of compile-time (indicated by **build**) and run-time environment (indicated by **run**) prerequisites is provided below:
+The application is distributed as Java source code and includes a build file for use with the [Apache Maven](https://maven.apache.org/) software management system. Building ShortUrl requires that a JDK be installed. The remaining dependencies are included in the Maven pom.xml build file, which is located in the project root directory, and will be resolved/downloaded by Maven during the build process. A summary of compile-time (indicated by **build**) and run-time environment (indicated by **run**) prerequisites is provided below:
 
 * [**Apache Maven** Version 3.6.3+](apache-maven-3.6.3-bin.tar.gz) (**build**)  - Available via most Linux distribution package managers
 * [**OpenJDK/JRE** Version 11+](https://openjdk.java.net/) (**build/run**) - Compliance level 11 required, although newer JDK versions can be used
-* [**Apache Tomcat** Version 9.0.37](https://tomcat.apache.org/download-90.cgi)  (**run**) - Version 9 required, see package manager such as apt, rpm, etc |
-* [**MariaDB** Version 10.3.22+](https://mariadb.org/) (**run**) - Available and likely installed by default from Linux distributions
+* [**Apache Tomcat** Version 9.0.37](https://tomcat.apache.org/download-90.cgi)  (**run**) - Version 9 required, see package manager on Linux platforms
+* [**MariaDB** Version 10.3.22+](https://mariadb.org/) (**run**) - Available with most Linux Distributions and commonly installed by default.
 
 ### Servlet Container
-[Apache Tomcat](http://tomcat.apache.org/) was used as a servlet container during development and testing of the application. Tomcat version 9 should be used for compatibility with the Servlet API 2.5 specification
+[Apache Tomcat](http://tomcat.apache.org/) was used as a servlet container during development and testing of the application. Any version of Tomcat that is compatible with the Servlet API 3.1 specification can be used.
 
 ### Database
 The application makes use of a relational database for storing mapping information that associates a generated 'token' with the URL of a site to be referenced. The current implementation requires use of [MariaDB](https://mariadb.org/), an open-source RDBMS implementation based on the original MySQL project. MariaDB is a stable, high-performance database which is widely used by cloud-services providers and is included as the default relational database management system with most Linux distributions.
 
-Your deployment should have a working MariaDB version 10+ installation that has a dedicated database created for use by this application named 'ShortUrl'. A different database can be used as well if required. Your database should also have a user account that has been granted access to the ShortUrl database. The default database, user, and password can be customized by was of the application properties file. A template properties file is included in the src/main directory of the project and includes the default application settings for a typical database deployment. From the mysql command prompt as the administrative user, the database and user can be created as follows:
+Your deployment should have a working MariaDB version 10+ installation that has a dedicated database created for use by this application named 'ShortUrl'. A different database can be used as well if required. Your database should also have a user account that has been granted access to the ShortUrl database. The default database, user, and password can be customized by was of the application properties file. A template properties file is included in the src/main directory of the project and includes the default application settings for a typical database deployment. From the `mysql` command prompt as the administrative user, the database and user can be created as follows:
 
 ```sql
 CREATE DATABASE ShortUrl;
