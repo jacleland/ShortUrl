@@ -48,7 +48,7 @@ mvn clean package
 Maven will produce a web archive file called `ShortUrl.war` in the `target` directory. This file can be automatically deployed by Tomcat, if configured to do so, by placing the .war file in the tomcat `/webapps` directory. **Please Note** that the application URL will be `ShortUrl` by default unless the `ShortUrl.war` file is renamed. You may choose, for example, to name your war file `s.war` *before* copying/uploading it to the Tomcat `webapps` directory so that it will be deployed with a shorter application/context name. For example, if your domain name is `example.com`, a war file named `s.war` would be auto-deployed by Tomcat as `https://example.com/s`.
 
 # Usage
-The application, as deployed, can be accessed via the context URL (`https://example.com/s`, for instance). The static web content provided can also be used as a reference when writing applications to use the web service directly. 
+As deployed, the application can be accessed via the context URL (`https://example.com/s`, for instance). The static web content provided can also be used as a reference when writing applications to use the web service directly. 
 
 If a web services-only deployment is needed, then the contents of the `src/main/webapp/static` directory can be removed or relocated outside the project tree. App developers may also wish to review the deployment descriptor (`src/main/webapp/WEB-INF/web.xml`) and remove the static filter declaration and mapping, along with the welcome-file list that includes `static/index.html`.
 
@@ -66,10 +66,10 @@ The ShortUrl web service exposes three interfaces, described below. Hereafter, t
 
 ```json
 {
-	"url": "<url_to_shorten>"
+	"url": "url_to_shorten"
 }
 ```
-<url_to_shorte> should be a long URL for which a short URL will be returned. 
+`url_to_shorten` should be a long URL for which a short URL will be returned. 
 *JavaScript Example:*
 
 ```javascript
@@ -93,7 +93,7 @@ The `handleResponse()` function could be implemented using JSON.parse() to extra
 	"shortUrl":"http://examp.le/s/4NJkQT"
 }
 ```
-The web service client can determine success or failure immediately by evaluating the `valid` or `httpStatus` properties. Upon success, these property values should be `true` and `200`, respectively.
+Success or failure can be determined by evaluating the `valid` or `httpStatus` properties. Upon success, these property values should be `true` and `200`, respectively.
 
-Upon success, the value returned for the `shortUrl` property (in this case, `http://examp.le/s/4NJkQT`) can be used to reference the URL provided in the JSON request body, also reference in the response as `url`.
+Upon success, the value returned for the `shortUrl` property (in this case, `http://examp.le/s/4NJkQT`) can be used to reference the URL provided in the JSON request body, also referenced in the response as `url`.
 
