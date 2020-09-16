@@ -6,35 +6,34 @@ The [ShortUrl](https://github.com/jacleland/ShortUrl) project is a web service i
 ## Prerequisites
 The application is distributed as Java source code and includes a build file for use with the [Apache Maven](https://maven.apache.org/) software management system. Building ShortUrl requires that a JDK be installed. The remaining dependencies are included in the Maven pom.xml build file, which is located in the project root directory, and will be resolved/downloaded by Maven during the build process. A summary of compile-time (indicated by **build**) and run-time environment (indicated by **run**) prerequisites is provided below:
 
-* [**Apache Maven** Version 3.6.3+](apache-maven-3.6.3-bin.tar.gz) (**build**)  - Available via most Linux distribution package managers
-* [**OpenJDK/JRE** Version 11+](https://openjdk.java.net/) (**build/run**) - Compliance level 11 required, although newer JDK versions can be used
-* [**Apache Tomcat** Version 9.0.37](https://tomcat.apache.org/download-90.cgi)  (**run**) - Version 9 required, see package manager on Linux platforms
+* [**Apache Maven** Version 3.6.3+](apache-maven-3.6.3-bin.tar.gz) (**build**)  - Available via most Linux distribution package managers.
+* [**OpenJDK/JRE** Version 11+](https://openjdk.java.net/) (**build/run**) - Compliance level 11 required, although newer JDK versions can be used.
+* [**Apache Tomcat** Version 9.0.37](https://tomcat.apache.org/download-90.cgi)  (**run**) - Version 9 required, see package manager on Linux platforms.
 * [**MariaDB** Version 10.3.22+](https://mariadb.org/) (**run**) - Available with most Linux Distributions and commonly installed by default.
 
 ### Servlet Container
 [Apache Tomcat](http://tomcat.apache.org/) was used as a servlet container during development and testing of the application. Any version of Tomcat that is compatible with the Servlet API 3.1 specification can be used.
 
 ### Database
-The application makes use of a relational database for storing mapping information that associates a generated 'token' with the URL of a site to be referenced. The current implementation requires use of [MariaDB](https://mariadb.org/), an open-source RDBMS implementation based on the original MySQL project. MariaDB is a stable, high-performance database which is widely used by cloud-services providers and is included as the default relational database management system with most Linux distributions.
+ShortUrl makes use of a relational database to store mapping information that associates a generated 'token' with the URL of a site to be referenced. The current implementation requires use of [MariaDB](https://mariadb.org/), an open-source RDBMS implementation based on the original MySQL project. MariaDB is a stable, high-performance database, widely used by cloud-service providers and is included as the default relational database management system with most Linux distributions.
 
-Your deployment should have a working MariaDB version 10+ installation that has a dedicated database created for use by this application named 'ShortUrl'. A different database can be used as well if required. Your database should also have a user account that has been granted access to the ShortUrl database. The default database, user, and password can be customized by was of the application properties file. A template properties file is included in the src/main directory of the project and includes the default application settings for a typical database deployment. From the `mysql` command prompt as the administrative user, the database and user can be created as follows:
+Your deployment should have a working MariaDB version 10+ installation that has a dedicated database named `ShortUrl` created for use by this application. Your database should also have a user account that has been granted access to the ShortUrl database. The default database, user, and password can be customized by way of the application properties file. A template properties file is included in the src/main directory of the project and includes the default application settings for a typical database deployment. From the `mysql` command prompt as the administrative user, the database and user can be created using:
 
 ```sql
 CREATE DATABASE ShortUrl;
-GRANT ALL ON ShortUrl.* to 'ShortUrl'@'%' IDENTIFIED BY '<password>';
+GRANT ALL ON ShortUrl.* to 'ShortUrl'@'%' IDENTIFIED BY 'password';
 FLUSH PRIVILEGES;
 ```
-where <password> is the database password for the ShortUrl user, specified as 'ShortUrl' in the default configuration properties file.
+where `password` is the database password for the ShortUrl user, specified as 'ShortUrl' in the default configuration properties file.
 
-DDL for creating the required database objects is provided in the [db/schema.ddl](https://github.com/jacleland/ShortUrl/blob/master/db/schema.ddl) file. Before deploying the application, the database should be initialized by executing this file as follows:
+DDL for creating the required database objects is provided in the [db/schema.ddl](https://github.com/jacleland/ShortUrl/blob/master/db/schema.ddl) file. Before deploying the application, initialize the database by executing the following `mysql` command from within the application directory. Mysql will prompt you for the password specified above when the database user was created.
 
-```
+```sql
 mysql -u ShortUrl -p < db/schema.ddl
 ```
-The above command should be run from the application directory (ShortUrl) and assumes that the database user name is `ShortUrl`. You should be prompted for a password before the command completes.
 
 ## Building the Application
-Prior to building the application, the `src/main/resources/config.properties.template` file should be copied/renamed to `src/main/resources/config.properties` and the properties contained within the file should be edited as necessary for your database installation and runtime preferences. The configuration contained in this file can be edited *after* deployment as well, but `src/main/resources/config.properties` should be included in the web archive to prevent Tomcat from using default property values.
+Prior to building the application, copy or rename the file `src/main/resources/config.properties.template` to `src/main/resources/config.properties`. The properties contained within the file should be edited as necessary for your database installation and runtime preferences. The configuration can be edited *after* deployment as well, but it is recommended that `src/main/resources/config.properties` be included in the web archive to prevent Tomcat from using default property values.
 
 Switch directories to the application root (ShortUrl) and initiate the build process by running Maven with the target 'package':
 
