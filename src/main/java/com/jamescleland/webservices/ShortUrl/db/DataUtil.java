@@ -28,6 +28,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 //Apache imports
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //Local imports
 import com.jamescleland.webservices.ShortUrl.models.CreateUrlRequest;
 import com.jamescleland.webservices.ShortUrl.models.UrlResponse;
@@ -37,6 +39,9 @@ import com.jamescleland.webservices.ShortUrl.models.UrlResponse;
  * for accessing the application backing store.
  */
 public class DataUtil {
+  //Logger instance
+  private static Logger logger = LoggerFactory.getLogger(DataUtil.class);
+  
   //The name of the database interface implementation provider
   private String dbImplProvider = null;
   
@@ -54,6 +59,9 @@ public class DataUtil {
     dbImplProvider = props.getProperty("dbProviderImpl", 
         "com.jamescleland.webservices.ShortUrl.db.ConnectionPool");
 
+    //Log provider class
+    logger.atDebug().log("Initialize using provider{}", dbImplProvider);
+    
     try {
       //Create instance of database interface provider implementation as
       // specified in the configuration properties (or using default implementation
@@ -74,6 +82,9 @@ public class DataUtil {
     //Get token length from properties
     tokenLength = Integer.valueOf(props.getProperty("tokenLength", "8"));
     if(tokenLength < 5) tokenLength = 5;
+    
+    //Log token length value
+    logger.atDebug().log("Using token length of {} characters", tokenLength);
   }
   
   /**
@@ -105,6 +116,16 @@ public class DataUtil {
           //Set parameters for prepared statement and execute
           stmt.setString(1, token);
           stmt.setString(2, reg.getUrl());
+          
+          logger
+            .atDebug()
+            .log("Creating URL mapping for {} using token {}", reg
+              .getUrl(), token);
+          logger
+            .atTrace()
+            .log("Statement: {}", stmt
+              .toString());
+          
           stmt.execute(); //Throw on unique constraint
           
           //Set the response data token and URL, the insert would throw on error
@@ -114,8 +135,15 @@ public class DataUtil {
         }
         catch(SQLException sqle) {
           //Throw out of while, outer try/catch handles response and cleanup
-          if(retry <= 0) throw sqle; 
+          if(retry <= 0) {
+            
+            throw sqle; 
+          }
           
+          logger
+            .atWarn()
+            .log("Duplicate token generated, retries left: {}", retry);
+         
           //Decrement retry counter
           retry--;
         }
@@ -157,6 +185,10 @@ public class DataUtil {
     response.setToken(token);
 
     try {
+      logger
+        .atDebug()
+        .log("Retrieving mapped URL for token {}", token);
+      
       //TODO: Validate token - [a-zA-Z0-9]{min,max} might be enough here
       //Get connection
       conn = dbImpl.getConnection();
@@ -164,6 +196,11 @@ public class DataUtil {
       //Create a query statement to retrieve a row by token
       stmt = conn.prepareStatement("SELECT id, createTime, token, url"
           + " FROM ShortUrl.ShortMap WHERE token='" + token + "';");
+      
+      logger
+        .atTrace()
+        .log("Statement: {}", stmt.toString());
+      
       rs = stmt.executeQuery();
       if(rs.next()) {
         //Read first returned row
@@ -179,9 +216,14 @@ public class DataUtil {
       }
       else {
         //No rows returned for this query, result is invalid and 404 (not found)
+        String err = "The URL for token '"+token+"' was not found";
+        logger
+          .atWarn()
+          .log(err);
+        
         response.setValid(false);
         response.setHttpStatus(404);
-        response.appendError("The URL for token '"+token+"' was not found");
+        response.appendError(err);
       }
     } 
     catch(SQLException sqle) {

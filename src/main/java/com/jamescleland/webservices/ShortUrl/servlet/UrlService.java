@@ -33,6 +33,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+//SLF4J Logging
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.profiler.Profiler;
+import org.slf4j.profiler.TimeInstrument;
 //Local library imports
 import com.jamescleland.webservices.ShortUrl.Configuration;
 import com.jamescleland.webservices.ShortUrl.db.DataUtil;
@@ -44,6 +49,9 @@ import com.jamescleland.webservices.ShortUrl.models.UrlResponse;
  */
 @Path("/") 
 public class UrlService {
+  //Logger instance
+  private static Logger logger = LoggerFactory.getLogger(UrlService.class);
+
   //The DbConnection instance to be used by this servlet instance
   private static DataUtil           shortUrlDb;
   
@@ -56,6 +64,10 @@ public class UrlService {
     
     try {
       //Initialize the database connection provider
+      logger
+        .atDebug()
+        .log("Static initialize DB interface");
+      
       shortUrlDb.init(Configuration.properties);
     }
     catch(Exception e) {
@@ -79,9 +91,20 @@ public class UrlService {
   {
     //Local data
     UrlResponse response = new UrlResponse();
+    String sessionId = servletRequest.getSession().getId();
+    
+    //Create profiler
+    //TODO: This should be controlled by properties
+    Profiler profiler = new Profiler(sessionId);
+    profiler.setLogger(logger);
+    profiler.start("create");
     
     try {
       //Create short URL for request
+      logger
+        .atDebug()
+        .log("/create - Creating short URL for {}", request.getUrl());
+      
       response = shortUrlDb.create(request);
       response.setShortUrl(createShortUrl(servletRequest, response));
     }
@@ -91,6 +114,11 @@ public class UrlService {
       response.setHttpStatus(500);
       response.setValid(false);
     }
+    
+    //Profiler elapsed time
+    //TODO: Conditional based on properties
+    TimeInstrument instrument = profiler.stop();
+    instrument.log();
     
     //Return the JSON data from registration
     return Response.status(response.getHttpStatus()).entity(response).build();
@@ -128,19 +156,49 @@ public class UrlService {
   public Response redirectForToken(@Context HttpServletRequest request,
       @PathParam("token") String token) 
   {
-    System.out.println(request.getRequestURL());
+    //System.out.println(request.getRequestURL());
+    Response response;
+    String sessionId = request.getSession().getId();
+    
+    //Create profiler
+    //TODO: This should be controlled by properties
+    Profiler profiler = new Profiler(sessionId);
+    profiler.setLogger(logger);
+    profiler.start("redirect");
+    
     try {
+      logger
+        .atDebug()
+        .log("/{token} - Redirecting request for token {}", token);
+      
       //Get short URL record for token and build the short URL w/prefix
-      UrlResponse response = shortUrlDb.read(token);
+      UrlResponse urlResponse = shortUrlDb.read(token);
+      
       
       //Build redirect response and return
-      URI target = new URI(response.getUrl());
-      System.out.println(target.toString());
-      return Response.temporaryRedirect(target).build();
+      URI target = new URI(urlResponse.getUrl());
+      //System.out.println(target.toString());
+      logger
+        .atDebug()
+        .log("Generated redirect response to URL {}", target.toString());
+      
+      response = Response.temporaryRedirect(target).build();
     }
     catch(Exception e) {
-      return Response.status(404).build();
+      logger
+        .atWarn()
+        .log("No mapping found for token {}", token);
+      
+      response =Response.status(404).build();
     }
+    
+    //Profiler elapsed time
+    //TODO: Conditional based on properties
+    TimeInstrument instrument = profiler.stop();
+    instrument.log();
+    
+    //Return the response object
+    return response;
   }
   
   /**
@@ -178,6 +236,11 @@ public class UrlService {
     
     //Build short URL from context path and token
     shortUrl += "/" +response.getToken();
+    
+    logger
+      .atDebug()
+      .log("Created short URL {}", shortUrl);
+    
     return shortUrl;
   }
 }

@@ -1,0 +1,19 @@
+#Configure logging output for FILE or stdout
+log4j.rootLogger=DEBUG, stdout
+
+#Log File location if logging to FILE
+logdir=/var/log/tomcat9
+
+#Log Pattern
+pattern=%d{yyyy-MM-dd HH:mm:ss.SSS} %rms [thread=%t] %x %-5p %c{1}: %m%n
+
+#File appender configuration
+log4j.appender.FILE=org.apache.log4j.FileAppender
+log4j.appender.FILE.File=${logdir}/ShortUrl.log
+log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
+log4j.appender.FILE.layout.ConversionPattern=${pattern}
+
+#stdout appender configuration
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=${pattern}
