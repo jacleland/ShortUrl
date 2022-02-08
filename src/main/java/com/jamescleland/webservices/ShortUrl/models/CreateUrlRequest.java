@@ -20,7 +20,7 @@
 package com.jamescleland.webservices.ShortUrl.models;
 
 //Jersey imports
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 //Jackson imports
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;

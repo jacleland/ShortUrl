@@ -25,11 +25,12 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import javax.ws.rs.ApplicationPath;
 //Jersey imports
-import javax.ws.rs.core.Application;
 //Project imports
 import com.jamescleland.webservices.ShortUrl.servlet.UrlService;
+
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 /**
  * Configuration class for ShortUrl application. This class was copied from the
