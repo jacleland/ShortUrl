@@ -59,6 +59,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	//Click listener for generate button
 	genButton.addEventListener('click', (event) => {
 		event;
+		
+		enableGenerate(false);
+		
 		var end = pageUrl.lastIndexOf('/');
 		var wsUrl = pageUrl.substr(0, end) + '/create';
 
